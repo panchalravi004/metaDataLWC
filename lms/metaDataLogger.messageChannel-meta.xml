@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+	<masterLabel>Meta Data Logger</masterLabel>
+	<isExposed>true</isExposed>
+	<description>This lms is for meta data logger</description>
+	<lightningMessageFields>
+		<fieldName>Key</fieldName>
+		<description>KeyNameFromJSON</description>
+	</lightningMessageFields>
+	<lightningMessageFields>
+		<fieldName>Level</fieldName>
+		<description>Object,Field</description>
+	</lightningMessageFields>
+	<lightningMessageFields>
+		<fieldName>Message</fieldName>
+		<description>null</description>
+	</lightningMessageFields>
+	<lightningMessageFields>
+		<fieldName>Position</fieldName>
+		<description>null</description>
+	</lightningMessageFields>
+</LightningMessageChannel>

@@ -1,0 +1,26 @@
+<template>
+
+	<lightning-spinner alternative-text="Loading" size="large" lwc:if={isSpinner}  ></lightning-spinner>
+
+	<!-- Upload Card -->
+	<lightning-card title="Create Objects - MetaData - JSON" icon-name='action:user_activation' class="slds-m-around_xxx-small">
+		<div class="slds-grid slds-wrap slds-m-around_x-small" style="align-items: center;">
+			<div class="slds-col slds-size_12-of-12"
+				style="display:flex;align-items:center; justify-content:space-around; ">
+
+				<lightning-input type="file" label="Select JSON file" onchange={handleFileChange}></lightning-input>
+
+				<lightning-input type="checkbox" variant="standard" label="With Fields" onchange={handleFieldCheckBox}>
+				</lightning-input>
+
+			</div>
+			<div class="slds-col slds-size_12-of-12">
+				<footer class="slds-card__footer">
+					<lightning-button label="Create Object" variant="brand" onclick={handleCreateObject}>
+					</lightning-button>
+				</footer>
+			</div>
+		</div>
+	</lightning-card>
+
+</template>

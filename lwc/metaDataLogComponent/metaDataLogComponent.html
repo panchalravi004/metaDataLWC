@@ -1,0 +1,51 @@
+<template>
+    <!-- Log Card -->
+	<lightning-card title="Log - MetaData" icon-name='standard:catalog' class="slds-m-around_xxx-small">
+
+		<table class="slds-table slds-table_cell-buffer slds-table_bordered"
+			aria-labelledby="element-with-table-label other-element-with-table-label">
+			<thead>
+				<tr class="slds-line-height_reset">
+					<th class="" scope="col">
+						<div class="slds-truncate" title="Level">Level</div>
+					</th>
+					<th class="" scope="col">
+						<div class="slds-truncate" title="Position">Position</div>
+					</th>
+					<th class="" scope="col">
+						<div class="slds-truncate" title="Key">Key</div>
+					</th>
+					<th class="" scope="col">
+						<div class="slds-truncate" title="Message">Message</div>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<template if:true={validationlog} for:each={validationlog} for:item="log" for:index="index">
+					<tr key={log.Id} class="slds-hint-parent">
+
+						<td data-label="Level">
+							<div class="slds-truncate" >{log.Level}</div>
+						</td>
+						<td data-label="Position">
+							<div class="slds-truncate" >{log.Position}</div>
+						</td>
+						<td data-label="Key">
+							<div class="slds-truncate" >{log.Key}</div>
+						</td>
+						<td data-label="Message">
+							<div class="slds-truncate" >{log.Message}</div>
+						</td>
+
+					</tr>
+				</template>
+
+				<template if:false={validationlog}>
+					<h3>No Log Available</h3>
+				</template>
+
+			</tbody>
+		</table>
+	</lightning-card>
+
+</template>
