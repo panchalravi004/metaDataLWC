@@ -53,7 +53,7 @@ public class MetaDataController {
                     }
                     newObjectList.addAll(createCustomFields(fieldList, con.get('OBJECT_API')));
                     // add to page layout
-                    // newObjectList.add(addFieldsToLayout(fieldList,con.get('OBJECT_API')));
+                    // newObjectList.add(addFieldsToLayout(service,fieldList,con.get('OBJECT_API')));
 
                 }
             }
@@ -64,7 +64,7 @@ public class MetaDataController {
 
     // @description : Create fields
     @AuraEnabled(cacheable=false)
-    public static List<MetadataService.SaveResult> createFields(String configs, String sessionId, String objectApi){
+    public static List<MetadataService.SaveResult> createFields(String configs, String sessionId){
         
         List<Object> tempList = (List<Object>) JSON.deserializeUntyped(configs);
         List<Map<String, Object>> configList = new List<Map<String, Object>>();
@@ -80,7 +80,20 @@ public class MetaDataController {
         MetadataService.MetadataPort service = createService(sessionId);
 
         List<MetadataService.Metadata> newFieldList = new List<MetadataService.Metadata>();
-        newFieldList.addAll(createCustomFields(configList, objectApi));
+        for (Map<String, Object> obj : configList) {
+
+            List<Object> tempList2 = (List<Object>) obj.get('Fields');
+            List<Map<String, Object>> configList2 = new List<Map<String, Object>>();
+
+            for (Object obj2 : tempList2) {
+                if (obj2 instanceof Map<String, Object>) {
+                    Map<String, Object> field = (Map<String, Object>) obj2;
+                    configList2.add(field);
+                }
+            }
+
+            newFieldList.addAll(createCustomFields(configList2, String.valueOf(obj.get('OBJECT_API'))));
+        }
 
         return createMetadataBatches(service, newFieldList);
 
@@ -162,33 +175,36 @@ public class MetaDataController {
     }
     
     // @description : Add all fields to page layouts
-    public static MetadataService.Metadata addFieldsToLayout(List<Map<String, Object>> fieldList, Object objectApi){
+    public static MetadataService.Metadata addFieldsToLayout(MetadataService.MetadataPort service, List<Map<String, Object>> fieldList, Object objectApi ){
 
         String objName = String.valueOf(objectApi);
         String layoutName = String.valueOf(objectApi).replace('_', ' ').substringBefore('c').trim()+' Layout';
 
-        MetadataService.Layout layout = new MetadataService.Layout();
-        layout.fullName = objName+'-'+'layoutName';
-        layout.layoutSections = new List<MetadataService.LayoutSection>();
-        MetadataService.LayoutSection layoutSection = new MetadataService.LayoutSection();
-        layoutSection.editHeading = true;
-        layoutSection.label = 'Information';
-        layoutSection.style = 'TwoColumnsTopToBottom';
-        layoutSection.layoutColumns = new List<MetadataService.LayoutColumn>();
-        
-        MetadataService.LayoutColumn layoutColumn = new MetadataService.LayoutColumn();
-        
-        layoutColumn.layoutItems = new List<MetadataService.LayoutItem>();
+        MetadataService.Layout layout = (MetadataService.Layout) service.readMetadata('Layout',new String[] { objName+'-'+layoutName }).getRecords()[0];
 
-        for (Map<String, Object> field : fieldList) {
-            MetadataService.LayoutItem item = new MetadataService.LayoutItem();
-            item.behavior = 'Readonly';
-            item.field = String.valueOf(field.get('API'));
-            layoutColumn.layoutItems.add(item);
+        // Add Layout section, layout, item and field
+        if(layout.layoutSections==null)
+            layout.layoutSections = new List<MetadataService.LayoutSection>();
+
+        // Find the existing section
+        MetadataService.LayoutSection existingSection = null;
+        for (MetadataService.LayoutSection section : layout.layoutSections) {
+            if (section.label.equals('Information')) {
+                existingSection = section;
+                break;
+            }
         }
 
-        layoutSection.layoutColumns.add(layoutColumn);
-        layout.layoutSections.add(layoutSection);
+        if(existingSection != null){
+            MetadataService.LayoutColumn existingColumn = existingSection.layoutColumns[0];
+            
+            for (Map<String, Object> field : fieldList) {
+                MetadataService.LayoutItem item = new MetadataService.LayoutItem();
+                item.behavior = 'Readonly';
+                item.field = String.valueOf(field.get('API'));
+                existingColumn.layoutItems.add(item);
+            }
+        }
 
         return layout;
 
