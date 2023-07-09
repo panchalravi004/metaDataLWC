@@ -53,7 +53,7 @@ export default class MetaDataFieldComponent extends LightningElement {
         if (this.validateJsonFile()) {
             this.isSpinner = true;
 
-            createFields({ 'configs': JSON.stringify(this.configData['Fields']), 'sessionId': this.sessionId.data, 'objectApi' : this.configData['OBJECT_API'] })
+            createFields({ 'configs': JSON.stringify(this.configData), 'sessionId': this.sessionId.data })
                 .then((result) => {
                     console.log('Result : ', JSON.stringify(result));
                     this.isSpinner = false;
@@ -70,62 +70,65 @@ export default class MetaDataFieldComponent extends LightningElement {
 
         var isValidate = true;
 
-        if('OBJECT_API' in this.configData){
-            
-            if('Fields' in this.configData){
+        this.configData.forEach((currentItem,objIndex) => {
+            if('OBJECT_API' in currentItem){
+                
+                if('Fields' in currentItem){
 
-                if(this.configData['Fields']){
+                    if(currentItem['Fields']){
 
-                    this.configData['Fields'].forEach((field, index) => {
+                        currentItem['Fields'].forEach((field, index) => {
 
-                        var temp = Object.keys(field);
-                        if ('TYPE' in field) {
+                            var temp = Object.keys(field);
+                            if ('TYPE' in field) {
 
-                            var rules = this.fieldRules[field['TYPE']];
-                            rules.forEach(fieldRule => {
-                                if (!temp.includes(fieldRule)) {
-                                    isValidate = false;
-                                    publish(this.context, LOGGER, {
-                                        Position: index + 1,
-                                        Level: 'Field',
-                                        Key: fieldRule,
-                                        Message: 'Required Key Missing '
-                                    });
+                                var rules = this.fieldRules[field['TYPE']];
+                                rules.forEach(fieldRule => {
+                                    if (!temp.includes(fieldRule)) {
+                                        isValidate = false;
+                                        publish(this.context, LOGGER, {
+                                            Position: 'O'+(objIndex+1)+'-F'+(index + 1),
+                                            Level: 'Field',
+                                            Key: fieldRule,
+                                            Message: 'Required Key Missing '
+                                        });
 
-                                }
-                            });
-                        } else {
-                            isValidate = false;
-                            // type missing
-                            publish(this.context, LOGGER, {
-                                Position: index + 1,
-                                Level: 'Field',
-                                Key: "TYPE",
-                                Message: `Required Key Missing `
-                            });
-                        }
+                                    }
+                                });
+                            } else {
+                                isValidate = false;
+                                // type missing
+                                publish(this.context, LOGGER, {
+                                    Position: 'O'+(objIndex+1)+'-F'+(index + 1),
+                                    Level: 'Field',
+                                    Key: "TYPE",
+                                    Message: `Required Key Missing `
+                                });
+                            }
 
+                        });
+                    }
+
+                }else{
+                    isValidate = false;
+                    publish(this.context, LOGGER, {
+                        Position: objIndex+1,
+                        Level: 'Field',
+                        Key: 'Fields',
+                        Message: 'Required Key Missing '
                     });
                 }
-
             }else{
                 isValidate = false;
                 publish(this.context, LOGGER, {
-                    Position: 0,
-                    Level: 'Field',
-                    Key: 'Fields',
+                    Position: objIndex+1,
+                    Level: 'Object',
+                    Key: 'OBJECT_API',
                     Message: 'Required Key Missing '
                 });
             }
-        }else{
-            isValidate = false;
-            publish(this.context, LOGGER, {
-                Position: 0,
-                Level: 'Object',
-                Key: 'OBJECT_API',
-                Message: 'Required Key Missing '
-            });
-        }
+        });
+
 
         return isValidate;
     }
