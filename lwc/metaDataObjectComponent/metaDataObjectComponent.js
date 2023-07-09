@@ -128,7 +128,7 @@ export default class MetaDataObjectComponent extends LightningElement {
                                 isValidate = false;
                                 // type missing
                                 publish(this.context, LOGGER, {
-                                    Position:(index+1)+'-'+(f+1),
+                                    Position:'O'+(index+1)+'-F'+(f+1),
                                     Level:'Field',
                                     Key:"TYPE",
                                     Message:`Required Key Missing `
