@@ -103,7 +103,8 @@ graph TD;
 ## Future Enhancements
 The following enhancements are planned for future releases:
 
-- [ ] Support for creating picklist fields without specifying the picklist values in the JSON file.
+- [ ] Support for creating formula fields with specifying the formula expression in the JSON file.
+- [ ] Support for creating picklist fields with specifying the picklist values in the JSON file.
 - [ ] Field-level security permission settings for the created fields.
 - [x] Ability to define page layouts for the created objects.
 
