@@ -34,6 +34,15 @@
       "UNIQUE":true
     },
     {
+      "API":"Formula__c",
+      "LABEL":"Formula",
+      "TYPE":"Number",
+      "PRECISION":10,
+      "SCALE":2,
+      "UNIQUE":true,
+      "FORMULA":42
+    },
+    {
       "API":"Currency__c",
       "LABEL":"Currency",
       "TYPE":"Currency",
