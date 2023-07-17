@@ -85,19 +85,19 @@ The following field types are supported by the component:
 
 ```mermaid
 graph TD;
-    Parent LWC-->Object LWC;
-    Parent LWC-->Field LWC;
-    Parent LWC-->Layout LWC;
-    Object LWC-->LMS;
-    Field LWC-->LMS;
-    Layout LWC-->LMS;
-    LMS-->LOG LWC;
-    Object LWC-->Controller;
-    Field LWC-->Controller;
-    Layout LWC-->Controller;
-    Object LWC-->Session VF Page;
-    Field LWC-->Session VF Page;
-    Layout LWC-->Session VF Page;
+    Parent-LWC-->Object-LWC;
+    Parent-LWC-->Field-LWC;
+    Parent-LWC-->Layout-LWC;
+    Object-LWC-->LMS;
+    Field-LWC-->LMS;
+    Layout-LWC-->LMS;
+    LMS-->LOG-LWC;
+    Object-LWC-->Controller;
+    Field-LWC-->Controller;
+    Layout-LWC-->Controller;
+    Object-LWC-->Session-VF-Page;
+    Field-LWC-->Session-VF-Page;
+    Layout-LWC-->Session-VF-Page;
 ```
 
 ## Future Enhancements
