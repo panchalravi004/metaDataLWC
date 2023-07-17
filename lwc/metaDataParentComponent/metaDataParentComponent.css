@@ -1,0 +1,9 @@
+.card-break-line{
+	height: 2px;
+	background-color: rgba(224, 224, 224, 0.911);
+	width: 100%;
+	margin: 10px 0px;
+}
+.slds-button{
+	width: 150px;
+}

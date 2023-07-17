@@ -1,0 +1,25 @@
+<template>
+
+	<lightning-spinner alternative-text="Loading" size="large" lwc:if={isSpinner}  ></lightning-spinner>
+
+	<!-- Upload Card -->
+		<div class="slds-grid slds-wrap">
+			<div class="slds-col slds-size_7-of-12 slds-p-around_xxx-small">
+				
+                <lightning-card title="Manage - MetaData" icon-name='standard:sobject_collection' >
+
+					<c-meta-data-object-component></c-meta-data-object-component>
+					<div class="card-break-line"></div>
+					<c-meta-data-field-component></c-meta-data-field-component>
+					<div class="card-break-line"></div>
+					<c-meta-data-layout-component></c-meta-data-layout-component>
+
+                </lightning-card>
+
+			</div>
+			<div class="slds-col slds-size_5-of-12 slds-p-around_xxx-small">
+				<c-meta-data-log-component></c-meta-data-log-component>
+			</div>
+		</div>
+
+</template>
