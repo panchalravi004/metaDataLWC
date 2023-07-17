@@ -1,0 +1,71 @@
+[
+  {
+      "OBJECT_API":"Meta_Student__c",
+      "LAYOUTS":[
+        {
+          "NAME":"Meta Student",
+          "ISNEW":false,
+          "SECTIONS":[
+            {
+              "NAME":"Information",
+              "ISNEW":false,
+              "EDITHEADING":true,
+              "STYLE":"TwoColumnsTopToBottom",
+              "FIELDS":[
+                {
+                  "API":"Last_Name__c",
+                  "BEHAVIOR":"Readonly"
+                }
+              ]
+            },
+            {
+              "NAME":"Information Student",
+              "ISNEW":true,
+              "EDITHEADING":true,
+              "STYLE":"TwoColumnsTopToBottom",
+              "FIELDS":[
+                {
+                  "API":"First_Name__c",
+                  "BEHAVIOR":"Readonly"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "NAME":"Meta Student Two",
+          "ISNEW":true,
+          "SECTIONS":[
+            {
+              "NAME":"Information",
+              "ISNEW":true,
+              "EDITHEADING":true,
+              "STYLE":"TwoColumnsTopToBottom",
+              "FIELDS":[
+                {
+                  "API":"Name",
+                  "BEHAVIOR":"Required"
+                },
+                {
+                  "API":"First_Name__c",
+                  "BEHAVIOR":"Readonly"
+                }
+              ]
+            },
+            {
+              "NAME":"Information Student",
+              "ISNEW":true,
+              "EDITHEADING":true,
+              "STYLE":"TwoColumnsTopToBottom",
+              "FIELDS":[
+                {
+                  "API":"Last_Name__c",
+                  "BEHAVIOR":"Readonly"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+  }
+]

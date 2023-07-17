@@ -86,7 +86,7 @@ The following enhancements are planned for future releases:
 
 - [ ] Support for creating picklist fields without specifying the picklist values in the JSON file.
 - [ ] Field-level security permission settings for the created fields.
-- [ ] Ability to define page layouts for the created objects.
+- [x] Ability to define page layouts for the created objects.
 
 ## Limitations
 - The component currently supports creating custom objects and fields only. Standard Salesforce objects and fields are not supported.
