@@ -11,18 +11,11 @@ public class MetaDataController {
     
     // @description : Create object with fields
     @AuraEnabled(cacheable=false)
-    public static List<MetadataService.SaveResult> createObjects(String configs, String sessionId, Boolean withFields) {
+    public static List<MetadataService.UpsertResult> createObjects(String configs, String sessionId, Boolean withFields) {
         
-        List<Object> tempList = (List<Object>) JSON.deserializeUntyped(configs);
-        List<Map<String, Object>> configList = new List<Map<String, Object>>();
-
-        for (Object obj : tempList) {
-            if (obj instanceof Map<String, Object>) {
-                Map<String, Object> config = (Map<String, Object>) obj;
-                configList.add(config);
-            }
-        }
-        System.debug('CONFIG '+configList);
+        List<Map<String, Object>> configList = convertJsonToList(configs);
+        
+        System.debug('createObjects ===> CONFIG '+configList);
 
         // Create service for current user session
         MetadataService.MetadataPort service = createService(sessionId);
@@ -44,13 +37,8 @@ public class MetaDataController {
             // If fields also created with object
             if (withFields) {
                 if (con.containsKey('Fields')) {
-                    List<Map<String, Object>> fieldList = new List<Map<String, Object>>();
-                    for (Object obj : (List<Object>) con.get('Fields')) {
-                        if (obj instanceof Map<String, Object>) {
-                            Map<String, Object> field = (Map<String, Object>) obj;
-                            fieldList.add(field);
-                        }
-                    }
+                    List<Map<String, Object>> fieldList = convertJsonToList(JSON.serialize(con.get('Fields')));
+
                     newObjectList.addAll(createCustomFields(fieldList, con.get('OBJECT_API')));
                     // add to page layout
                     // newObjectList.add(addFieldsToLayout(service,fieldList,con.get('OBJECT_API')));
@@ -64,35 +52,21 @@ public class MetaDataController {
 
     // @description : Create fields
     @AuraEnabled(cacheable=false)
-    public static List<MetadataService.SaveResult> createFields(String configs, String sessionId){
+    public static List<MetadataService.UpsertResult> createFields(String configs, String sessionId){
         
-        List<Object> tempList = (List<Object>) JSON.deserializeUntyped(configs);
-        List<Map<String, Object>> configList = new List<Map<String, Object>>();
-
-        for (Object obj : tempList) {
-            if (obj instanceof Map<String, Object>) {
-                Map<String, Object> field = (Map<String, Object>) obj;
-                configList.add(field);
-            }
-        }
+        List<Map<String, Object>> configList = convertJsonToList(configs);
 
         // Create service for current user session
         MetadataService.MetadataPort service = createService(sessionId);
 
         List<MetadataService.Metadata> newFieldList = new List<MetadataService.Metadata>();
-        for (Map<String, Object> obj : configList) {
+        for (Map<String, Object> con : configList) {
 
-            List<Object> tempList2 = (List<Object>) obj.get('Fields');
-            List<Map<String, Object>> configList2 = new List<Map<String, Object>>();
+            List<Map<String, Object>> fieldList = convertJsonToList(JSON.serialize(con.get('Fields')));
 
-            for (Object obj2 : tempList2) {
-                if (obj2 instanceof Map<String, Object>) {
-                    Map<String, Object> field = (Map<String, Object>) obj2;
-                    configList2.add(field);
-                }
-            }
-
-            newFieldList.addAll(createCustomFields(configList2, String.valueOf(obj.get('OBJECT_API'))));
+            newFieldList.addAll(createCustomFields(fieldList, String.valueOf(con.get('OBJECT_API'))));
+            // add to page layout
+            //newFieldList.add(addFieldsToLayout(service,fieldList,con.get('OBJECT_API')));
         }
 
         return createMetadataBatches(service, newFieldList);
@@ -142,36 +116,113 @@ public class MetaDataController {
         return customFields;
     }
 
-    // @description : creating batch and then insert    
-    // (MAX BATCH = 10) - For single operation
-    public static List<MetadataService.SaveResult> createMetadataBatches(MetadataService.MetadataPort service, List<MetadataService.Metadata> newObjectList) {
-        Integer batchSize = 10; // Specify the desired batch size
-        List<MetadataService.SaveResult> results = new List<MetadataService.SaveResult>();
+    // @description : Add Fields in multiple section of multiple layouts of multiple objects
+    @AuraEnabled(cacheable=true)
+    public static List<MetadataService.UpsertResult> upsertLayouts(String configs, String sessionId){
 
-        for (Integer i = 0; i < newObjectList.size(); i += batchSize) {
-            List<MetadataService.Metadata> batch = new List<MetadataService.Metadata>();
-            for (Integer j = i; j < Math.min(i + batchSize, newObjectList.size()); j++) {
-                batch.add(newObjectList[j]);
-            }
+        List<Map<String, Object>> configList = convertJsonToList(configs);
+
+        System.debug('upsertLayouts ===> CONFIG '+configList);
+
+        // Create service for current user session
+        MetadataService.MetadataPort service = createService(sessionId);
+
+        List<MetadataService.Metadata> updatedLayoutList = new List<MetadataService.Metadata>();
+
+        for (Map<String, Object> obj : configList) {
             
-            try {
-                MetadataService.SaveResult[] saveResults = service.createMetadata(batch);
-                results.addAll(saveResults);
-            } catch (Exception e) {
-                // Handle the exception appropriately
-                System.debug('An error occurred while creating metadata. Error message: ' + e.getMessage());
+            // Get Layouts list from object
+            List<Map<String, Object>> layoutList = convertJsonToList(JSON.serialize(obj.get('LAYOUTS')));
+
+            // Get Layout
+            for (Map<String, Object> objLayout : layoutList) {
+
+                MetadataService.Layout layout = new MetadataService.Layout();
+                
+                if(!Boolean.valueOf(objLayout.get('ISNEW'))){
+                    layout = (MetadataService.Layout) service.readMetadata('Layout',new String[] { String.valueOf(obj.get('OBJECT_API'))+'-'+String.valueOf(objLayout.get('NAME'))+' Layout' }).getRecords()[0];
+                    System.debug('======== Old Layout ========');
+                }else{
+                    System.debug('======== New Layout ========');
+                    layout.fullName = String.valueOf(obj.get('OBJECT_API'))+'-'+String.valueOf(objLayout.get('NAME'))+' Layout';
+                }
+
+                // Get Sections list from Layout
+                List<Map<String, Object>> sectionList = convertJsonToList(JSON.serialize(objLayout.get('SECTIONS')));
+
+                // sections not available then initialize this
+                if(layout.layoutSections==null){
+                    System.debug('======== New Section With Required Field ========');
+                    layout.layoutSections = new List<MetadataService.LayoutSection>();
+                }
+
+                for (Map<String, Object> layoutSection : sectionList) {
+
+                    MetadataService.LayoutSection section = null;
+
+                    // Get Sections list from Layout
+                    List<Map<String, Object>> fieldList = convertJsonToList(JSON.serialize(layoutSection.get('FIELDS')));
+                    
+                    if(!Boolean.valueOf(objLayout.get('ISNEW')) && !Boolean.valueOf(layoutSection.get('ISNEW'))){
+
+                        for (MetadataService.LayoutSection existingSection : layout.layoutSections) {
+                            if (existingSection.label.equals(String.valueOf(layoutSection.get('NAME')))) {
+                                System.debug('======== Old Section Match ========');
+                                section = (MetadataService.LayoutSection) existingSection;
+                                break;
+                            }
+                        }
+
+                        if(section != null){
+                            MetadataService.LayoutColumn existingColumn = section.layoutColumns[0];
+                
+                            for (Map<String, Object> field : fieldList) {
+                                System.debug('======== Field Updated ========');
+                                MetadataService.LayoutItem item = new MetadataService.LayoutItem();
+                                item.behavior = String.valueOf(field.get('BEHAVIOR'));
+                                item.field = String.valueOf(field.get('API'));
+                                existingColumn.layoutItems.add(item);
+                            }
+                        }
+
+                    }else{
+                        System.debug('======== New Section User Define ========');
+                        section = new MetadataService.LayoutSection();
+                        if(section != null){
+                            section.editHeading = Boolean.valueOf(layoutSection.get('EDITHEADING'));
+                            section.label = String.valueOf(layoutSection.get('NAME'));
+                            section.style = String.valueOf(layoutSection.get('STYLE'));
+
+                            section.layoutColumns = new List<MetadataService.LayoutColumn>();
+                            MetadataService.LayoutColumn layoutColumn = new MetadataService.LayoutColumn();
+
+                            layoutColumn.layoutItems = new List<MetadataService.LayoutItem>();
+
+                            for (Map<String, Object> field : fieldList) {
+                                System.debug('======== New Field User Define ========');
+                                MetadataService.LayoutItem item = new MetadataService.LayoutItem();
+                                item.behavior = String.valueOf(field.get('BEHAVIOR'));
+                                item.field = String.valueOf(field.get('API'));
+                                layoutColumn.layoutItems.add(item);
+                            }
+                            section.layoutColumns.add(layoutColumn);
+                            layout.layoutSections.add(section);
+                        }
+                        
+                    }
+
+                }
+
+                System.debug('======== New Layout Added ========');
+
+                updatedLayoutList.add(layout);
+
             }
+
         }
 
-        return results;
-    }
-    
-    public static MetadataService.MetadataPort createService(String sessionId){
-        MetadataService.MetadataPort service = new MetadataService.MetadataPort();
-        service.SessionHeader = new MetadataService.SessionHeader_element();
-        // service.SessionHeader.sessionId = UserInfo.getSessionId();
-        service.SessionHeader.sessionId = sessionId;
-        return service;
+        return createMetadataBatches(service, updatedLayoutList);
+
     }
     
     // @description : Add all fields to page layouts
@@ -208,6 +259,38 @@ public class MetaDataController {
 
         return layout;
 
+    } 
+
+    // @description : creating batch and then insert    
+    // (MAX BATCH = 10) - For single operation
+    public static List<MetadataService.UpsertResult> createMetadataBatches(MetadataService.MetadataPort service, List<MetadataService.Metadata> newObjectList) {
+        Integer batchSize = 10; // Specify the desired batch size
+        List<MetadataService.UpsertResult> results = new List<MetadataService.UpsertResult>();
+
+        for (Integer i = 0; i < newObjectList.size(); i += batchSize) {
+            List<MetadataService.Metadata> batch = new List<MetadataService.Metadata>();
+            for (Integer j = i; j < Math.min(i + batchSize, newObjectList.size()); j++) {
+                batch.add(newObjectList[j]);
+            }
+            
+            try {
+                MetadataService.UpsertResult[] upsertResults = service.upsertMetadata(batch);
+                results.addAll(upsertResults);
+            } catch (Exception e) {
+                // Handle the exception appropriately
+                System.debug('An error occurred while creating metadata. Error message: ' + e.getMessage());
+            }
+        }
+
+        return results;
+    }
+    
+    public static MetadataService.MetadataPort createService(String sessionId){
+        MetadataService.MetadataPort service = new MetadataService.MetadataPort();
+        service.SessionHeader = new MetadataService.SessionHeader_element();
+        // service.SessionHeader.sessionId = UserInfo.getSessionId();
+        service.SessionHeader.sessionId = sessionId;
+        return service;
     }
 
     // @description : handle save result if any error accured
@@ -239,6 +322,22 @@ public class MetaDataController {
     @AuraEnabled(cacheable=true)
     public static String getSessionId() {
         return Page.GenerateSessionIdForLWC.getContent().toString();
+    }
+
+    public static List<Map<String, Object>> convertJsonToList(String jsonString){
+        
+        List<Object> tempList = (List<Object>) JSON.deserializeUntyped(jsonString);
+        List<Map<String, Object>> configList = new List<Map<String, Object>>();
+
+        for (Object obj : tempList) {
+            if (obj instanceof Map<String, Object>) {
+                Map<String, Object> config = (Map<String, Object>) obj;
+                configList.add(config);
+            }
+        }
+
+        return configList;
+
     }
 
     public class MetadataServiceExamplesException extends Exception { }
