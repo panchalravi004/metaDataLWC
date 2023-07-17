@@ -7,6 +7,7 @@ public class MetaDataController {
     public static List<String> ruleUnique = new List<String>{'Text','Number','Email'};
     public static List<String> ruleExternal = new List<String>{'Text','Number','Email'};
     public static List<String> ruleRelation = new List<String>{'Lookup','MasterDetail'};
+    public static List<String> ruleFormula = new List<String>{'Text','Number','Currency','Percent','Date'};
     
     
     // @description : Create object with fields
@@ -97,6 +98,13 @@ public class MetaDataController {
 
                 if (String.valueOf(field.get('TYPE')) == 'MasterDetail') {
                     customField.writeRequiresMasterRead = Boolean.valueOf(field.get('WRITE_REQUIRES'));
+                }
+            }
+
+            // This will create formula field with define type
+            if (ruleFormula.contains(String.valueOf(field.get('TYPE')))) {
+                if(field.containsKey('FORMULA')){
+                    customField.formula = String.valueOf(field.get('FORMULA'));
                 }
             }
 
