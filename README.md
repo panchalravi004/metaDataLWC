@@ -81,7 +81,7 @@ The following field types are supported by the component:
 - Lookup
 - Master-Detail
 
-## Here is a simple flow chart:
+## Here is a flow chart:
 
 ```mermaid
 graph TD;
