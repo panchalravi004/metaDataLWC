@@ -106,7 +106,7 @@ The following enhancements are planned for future releases:
 - [x] Support for creating formula fields with specifying the formula expression in the JSON file.
 - [x] Ability to define page layouts for the created objects.
 - [ ] Support for creating picklist fields with specifying the picklist values in the JSON file.
-- [ ] Field-level security permission settings for the created fields.
+- [x] Field-level security permission settings for the created fields.
 
 ## Limitations
 - The component currently supports creating custom objects and fields only. Standard Salesforce objects and fields are not supported.
