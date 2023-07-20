@@ -25,7 +25,7 @@ export default class MetaDataObjectComponent extends LightningElement {
         "MasterDetail": ["API", "LABEL", "TYPE", "RELATION_LABEL", "RELATION_NAME","REFERENCE_TO","WRITE_REQUIRES"],
         "Date": ["API", "LABEL", "TYPE"],
         "Phone": ["API", "LABEL", "TYPE"],
-        "Picklist": ["API", "LABEL", "TYPE","VALUES"]
+        "Picklist": ["API", "LABEL", "TYPE","SORT","VALUES"]
     };
 
     // Get LMS context

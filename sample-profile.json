@@ -1,0 +1,29 @@
+[
+  {
+    "NAME":"Custom Profile S",
+    "CUSTOM":false,
+    "OBJECTS":[
+        {
+          "OBJECT_API":"Meta_Student__c",
+          "CREATE": true,
+          "DELETE": false,
+          "EDIT": true,
+          "READ": true,
+          "MODIFY_ALL": false,
+          "VIEW_ALL": false,
+          "FIELDS":[
+            {
+              "API":"First_Name__c",
+              "EDITABLE":true,
+              "READABLE":true
+            },
+            {
+              "API":"Last_Name__c",
+              "EDITABLE":true,
+              "READABLE":true
+            }
+          ]
+        }
+      ]
+  }
+]

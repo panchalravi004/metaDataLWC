@@ -1,0 +1,17 @@
+<template>
+		<lightning-spinner alternative-text="Loading" size="large" lwc:if={isSpinner}></lightning-spinner>
+
+	<div class="card">
+		<div style="display:flex;align-items:center;">
+			<span class="card-header" >Permissions</span>
+			<lightning-input type="file" label="Select JSON file" onchange={handleFileChange}></lightning-input>
+		</div>
+
+        <lightning-input type="checkbox" variant="standard" label="With Fields" onchange={handleFieldCheckBox}>
+		</lightning-input>
+
+		<lightning-button label="Update" variant="brand" onclick={handleUpdatePermission}>
+		</lightning-button>
+	</div>
+
+</template>

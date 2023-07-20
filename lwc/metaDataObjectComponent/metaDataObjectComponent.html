@@ -1,18 +1,18 @@
 <template>
 	<lightning-spinner alternative-text="Loading" size="large" lwc:if={isSpinner}></lightning-spinner>
 
-	<div class="card">
-		<div style="display:flex;align-items:center;">
-			<span class="card-header" >Objects</span>
-			<lightning-input type="file" label="Select JSON file" onchange={handleFileChange}></lightning-input>
-		</div>
-
-		<lightning-input type="checkbox" variant="standard" label="With Fields" onchange={handleFieldCheckBox}>
-		</lightning-input>
-
-		<lightning-button label="Create Objects" variant="brand" onclick={handleCreateObject}>
-		</lightning-button>
-
+<div class="card">
+	<div style="display:flex;align-items:center;">
+		<span class="card-header" >Objects</span>
+		<lightning-input type="file" label="Select JSON file" onchange={handleFileChange}></lightning-input>
 	</div>
+
+	<lightning-input type="checkbox" variant="standard" label="With Fields" onchange={handleFieldCheckBox}>
+	</lightning-input>
+
+	<lightning-button  label="Create" variant="brand" onclick={handleCreateObject}>
+	</lightning-button>
+
+</div>
 
 </template>
